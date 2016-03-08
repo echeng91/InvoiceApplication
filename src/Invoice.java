@@ -6,7 +6,9 @@ public class Invoice {
 	static Scanner sc = new Scanner(System.in);
 	static NumberFormat currency = NumberFormat.getCurrencyInstance();
 	static double taxRate = 0;
-	static double[] prices = new double[100];
+	static final double defaultTaxRate = 0.05;
+	static final int maxNumberOfPrices = 10;
+	static double[] prices = new double[maxNumberOfPrices];
 
 	public static void main(String[] args)
 	{
@@ -17,9 +19,21 @@ public class Invoice {
 
 	private static void getTaxRate()
 	{
-		System.out.print("Tax Rate?:\t");
-		taxRate = sc.nextDouble();
-		sc.nextLine();
+		try
+		{
+			System.out.print("Tax Rate?:\t");
+			taxRate = sc.nextDouble();
+		}
+		catch(java.util.InputMismatchException e)
+		{
+			System.out.println("Invalid Input. Tax rate should be a number.");
+			System.out.println("Tax rate set to default value: " + defaultTaxRate);
+			taxRate = defaultTaxRate;
+		}
+		finally
+		{
+			sc.nextLine();
+		}
 	}
 
 	private static void getPrices()
@@ -28,17 +42,41 @@ public class Invoice {
 		double inputPrice = 1.0;//initialize to a nonzero value
 		while(inputPrice != 0.0)
 		{
-			System.out.printf("Price #%d:\t", counter + 1);
-			inputPrice = sc.nextDouble();
-			sc.nextLine();
+			try
+			{
+				System.out.printf("Price #%d:\t", counter + 1);
+				inputPrice = sc.nextDouble();
+			}
+			catch(java.util.InputMismatchException e)
+			{
+				System.out.println("Invalid Input. Prices should be numbers.");
+				System.out.println("Ending price entry.");
+				inputPrice = 0;
+			}
+			finally
+			{
+				sc.nextLine();
+			}
 			if(inputPrice == 0.0)
 			{
 				display(counter);
 			}
 			else
 			{
-				prices[counter] = inputPrice;
-				counter++;
+				try
+				{
+					prices[counter] = inputPrice;
+					counter++;
+				}
+				catch(ArrayIndexOutOfBoundsException e)
+				{
+					System.out.println("You have entered more prices than the maximum this application can handle.");
+					inputPrice = 0;
+				}
+				catch(Exception e)
+				{
+					System.out.println("An error has occurred.");
+				}
 			}
 		}
 	}
